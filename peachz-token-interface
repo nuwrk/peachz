@@ -1,0 +1,92 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+/**
+ * @title PeachzToken
+ * @dev Interface for the Peachz token contract, conforming to the ERC20 standard.
+ */
+interface PeachzToken {
+    // Events
+
+    /**
+     * @dev Emitted when tokens are transferred from one account to another.
+     * @param from The address which transferred tokens.
+     * @param to The address which received the tokens.
+     * @param value The amount of tokens transferred.
+     */
+    event Transfer(address indexed from, address indexed to, uint256 value);
+
+    /**
+     * @dev Emitted when the allowance of a spender for an owner is set or decreased.
+     * @param owner The address which owns the tokens.
+     * @param spender The address which is allowed to spend tokens on behalf of the owner.
+     * @param value The new allowance amount.
+     */
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+
+    // Functions
+
+    /**
+     * @dev Returns the name of the token.
+     * @return The name of the token.
+     */
+    function name() external view returns (string memory);
+
+    /**
+     * @dev Returns the symbol of the token.
+     * @return The symbol of the token.
+     */
+    function symbol() external view returns (string memory);
+
+    /**
+     * @dev Returns the number of decimals used to get its user representation.
+     * @return The number of decimals.
+     */
+    function decimals() external view returns (uint8);
+
+    /**
+     * @dev Returns the total supply of the token.
+     * @return The total supply.
+     */
+    function totalSupply() external view returns (uint256);
+
+    /**
+     * @dev Returns the balance of the specified account.
+     * @param account The address of the account to query the balance of.
+     * @return The balance of the specified account.
+     */
+    function balanceOf(address account) external view returns (uint256);
+
+    /**
+     * @dev Transfers tokens from the caller's account to the recipient's account.
+     * @param recipient The address of the recipient.
+     * @param amount The amount of tokens to transfer.
+     * @return True if the transfer was successful, otherwise false.
+     */
+    function transfer(address recipient, uint256 amount) external returns (bool);
+
+    /**
+     * @dev Returns the remaining number of tokens that spender is allowed to spend on behalf of owner through `transferFrom`.
+     * @param owner The address which owns the tokens.
+     * @param spender The address which is allowed to spend tokens on behalf of the owner.
+     * @return The remaining allowance for spender.
+     */
+    function allowance(address owner, address spender) external view returns (uint256);
+
+    /**
+     * @dev Sets amount as the allowance of spender over the caller's tokens.
+     * @param spender The address which is allowed to spend tokens on behalf of the caller.
+     * @param amount The allowance amount.
+     * @return True if the approval was successful, otherwise false.
+     */
+    function approve(address spender, uint256 amount) external returns (bool);
+
+    /**
+     * @dev Transfers tokens from one account to another using a spender's allowance.
+     * @param sender The address which transfers tokens.
+     * @param recipient The address which receives the tokens.
+     * @param amount The amount of tokens to transfer.
+     * @return True if the transfer was successful, otherwise false.
+     */
+    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
+}
