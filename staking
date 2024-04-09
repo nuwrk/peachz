@@ -1,0 +1,84 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+interface PeachzToken {
+    // Define interface for $Peachz token
+    // Include functions for transferring and querying balances
+}
+
+contract PeachzStaking {
+    PeachzToken public peachzToken;
+
+    struct Staker {
+        uint256 balance;
+        uint256 stakingStartTimestamp;
+    }
+
+    mapping(address => Staker) public stakers;
+    uint256 public totalStaked;
+    uint256 public totalEarnings;
+    uint256 public quarterlyEarningsPool;
+    uint256 public quarterlyEndTimestamp;
+
+    event Staked(address indexed staker, uint256 amount);
+    event Unstaked(address indexed staker, uint256 amount, uint256 earnings);
+
+    constructor(address _peachzToken) {
+        peachzToken = PeachzToken(_peachzToken);
+        // Set quarterly end timestamp initially
+        quarterlyEndTimestamp = block.timestamp + 88 days;
+    }
+
+    function stake(uint256 amount) external {
+        require(amount > 0, "Amount must be greater than 0");
+        require(peachzToken.transferFrom(msg.sender, address(this), amount), "Token transfer failed");
+
+        Staker storage staker = stakers[msg.sender];
+        staker.balance += amount;
+        staker.stakingStartTimestamp = block.timestamp;
+
+        totalStaked += amount;
+
+        emit Staked(msg.sender, amount);
+    }
+
+    function unstake() external {
+        Staker storage staker = stakers[msg.sender];
+        require(staker.balance > 0, "No balance to unstake");
+
+        uint256 earnings = calculateEarnings(msg.sender);
+
+        require(peachzToken.transfer(msg.sender, staker.balance), "Token transfer failed");
+
+        staker.balance = 0;
+        staker.stakingStartTimestamp = 0;
+
+        totalStaked -= staker.balance;
+        totalEarnings -= earnings;
+
+        emit Unstaked(msg.sender, staker.balance, earnings);
+    }
+
+    function calculateEarnings(address stakerAddress) internal view returns (uint256) {
+        Staker memory staker = stakers[stakerAddress];
+        uint256 stakingDuration = block.timestamp - staker.stakingStartTimestamp;
+        uint256 earnings = staker.balance * stakingDuration * quarterlyEarningsPool / totalStaked;
+
+        return earnings;
+    }
+
+    // This function should be called at the end of each quarter to distribute earnings
+    function distributeEarnings(uint256 earnings) external {
+        require(block.timestamp >= quarterlyEndTimestamp, "Quarter not ended yet");
+
+        totalEarnings += earnings;
+        quarterlyEarningsPool = 0;
+        // Set new quarterly end timestamp
+        quarterlyEndTimestamp = block.timestamp + 88 days;
+    }
+
+    // Function to update quarterly earnings pool
+    function updateQuarterlyEarningsPool(uint256 earnings) external {
+        quarterlyEarningsPool += earnings;
+    }
+}
